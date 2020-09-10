@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.smbms.dao.bill.BillMapper">
+	<insert id="add" parameterType="Bill">
+		insert into smbms_bill (billCode,productName,productDesc,
+		productUnit,productCount,totalPrice,
+		isPayment,providerId,createdBy,creationDate)
+		values(#{billCode},#{productName},#{productDesc},
+		#{productUnit},#{productCount},#{totalPrice},
+		#{isPayment},#{providerId},#{createdBy},#{creationDate})
+	</insert>
+	<update id="modify">
+		update smbms_bill
+		set productName=?,productDesc=?,productUnit=?,
+		productCount=?,totalPrice=?,isPayment=?,
+		providerId=?,modifyBy=?,modifyDate=?
+		<trim prefix="set" suffixOverrides="," suffix="where id = #{id}">
+			<if test="productName!=null and productName!=''">productName = #{productName},</if>
+			<if test="productDesc!=null and productDesc!=''">productDesc = #{productDesc},</if>
+			<if test="productUnit!=null and productUnit!=''">productUnit = #{productUnit},</if>
+			<if test="productCount!=null and productCount!=''">productCount = #{productCount},</if>
+			<if test="totalPrice!=null and totalPrice!=''">totalPrice = #{totalPrice},</if>
+			<if test="isPayment!=null">isPayment = #{isPayment},</if>
+			<if test="providerId!=null">providerId = #{providerId},</if>
+			<if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+			<if test="modifyDate!=null">modifyDate = #{modifyDate}</if>
+		</trim>
+	</update>
+	<delete id="deleteBillById">
+		delete from smbms_bill where id=#{delId}
+	</delete>
+
+	<select id="getBillList" resultType="cn.smbms.pojo.Bill">
+	    select b.*,p.proName as providerName from smbms_bill b,smbms_provider p
+			<where>
+				<if test="productName!=null and productName!=''">
+					b.productName like concat('%',#{productName},'%')
+				</if>
+				<if test="providerId!=0">
+					and b.providerId=#{providerId}
+				</if>
+				<if test="isPayment!=0">
+				and b.isPayment=#{isPayment}
+				</if>
+				and b.providerId=p.id
+			</where>
+		</select>
+
+
+	<!--	<resultMap id="billMap" type="Bill">-->
+<!--		<result property="id" column="id"/>-->
+<!--		<result property="billCode" column="billCode"/>-->
+<!--		<result property="productName" column="productName"/>-->
+<!--&lt;!&ndash;		<result property="providerName" column="proName"/>&ndash;&gt;-->
+<!--		<result property="totalPrice" column="totalPrice"/>-->
+<!--		<result property="isPayment" column="isPayment"/>-->
+<!--		<result property="creationDate" column="creationDate"/>-->
+
+<!--&lt;!&ndash;		association&ndash;&gt;-->
+<!--		<association property="provider" javaType="Provider">-->
+<!--			<id property="id" column="id"/>-->
+<!--			<result property="proCode" column="proCode"/>-->
+<!--			<result property="proName" column="proName"/>-->
+<!--			<result property="proContact" column="proContact"/>-->
+<!--			<result property="proPhone" column="proPhone"/>-->
+<!--		</association>-->
+<!--	</resultMap>-->
+<!--	&lt;!&ndash; 查询用户列表 &ndash;&gt;-->
+<!--	<select id="getBillList" resultMap="billMap">-->
+<!--		select b.*,p.proName from smbms_bill b,smbms_provider p-->
+<!--		<where>-->
+<!--			<if test="productName!=null and productName!=''">-->
+<!--				b.productName like concat('%',#{productName},'%')-->
+<!--			</if>-->
+<!--			<if test="isPayment!=null">-->
+<!--			and b.isPayment=#{isPayment}-->
+<!--			</if>-->
+<!--			<if test="providerId!=null">-->
+<!--			and b.providerId=#{providerId}-->
+<!--			</if>-->
+<!--			and b.providerId=p.id-->
+<!--		</where>-->
+<!--	</select>-->
+
+<!--	<select id="getBillList1" resultMap="billMap">-->
+<!--		select b.*,p.proName from smbms_bill b,smbms_provider p-->
+<!--		<where>-->
+<!--			<if test="productName!=null and productName!=''">-->
+<!--				b.productName like concat('%',#{productName},'%')-->
+<!--			</if>-->
+<!--			<if test="isPayment!=null">-->
+<!--				and b.isPayment=#{isPayment}-->
+<!--			</if>-->
+<!--			<if test="providerId!=null">-->
+<!--				and b.providerId=#{providerId}-->
+<!--			</if>-->
+<!--			and b.providerId=p.id-->
+<!--		</where>-->
+<!--		order by b.creationDate desc-->
+<!--		limit #{from},#{pageSize}-->
+<!--	</select>-->
+
+<!--    <select id="getBillListByProviderId" resultMap="billMap">-->
+<!--	select * from smbms_bill b,smbms_provider p-->
+<!--		where b.productName like concat('%',#{productName},'%')-->
+<!--		 and b.isPayment=#{isPayment}-->
+<!--		 and b.providerId=#{providerId}-->
+<!--		 and b.providerId=p.id-->
+<!--	</select>-->
+<!--	<select id="getBillList_foreach_array" resultType="cn.smbms.entity.Bill">-->
+<!--		select * from smbms_bill where providerId in-->
+<!--		<foreach collection="array" item="p_id" open="(" close=")" separator=",">-->
+<!--			#{p_id}-->
+<!--		</foreach>-->
+<!--	</select>-->
+<!--	<select id="getBillList_foreach_list" resultType="cn.smbms.entity.Bill">-->
+<!--		select * from smbms_bill where providerId in-->
+<!--		<foreach collection="list" item="providerId" open="(" close=")" separator=",">-->
+<!--			#{providerId}-->
+<!--		</foreach>-->
+
+<!--	</select>-->
+<!--	<select id="getBillListBybillCode" resultType="cn.smbms.entity.Bill">-->
+<!--		select * from smbms_bill-->
+<!--		where billCode like concat('%',#{billCode},'%')-->
+<!--		 and  providerId in-->
+<!--		<foreach collection="map1" item="p_id" open="(" close=")" separator=",">-->
+<!--			#{p_id}-->
+<!--		</foreach>-->
+<!--	</select>-->
+
+
+	<select id="getBillCountByProviderId" resultType="java.lang.Integer">
+		select count(1) as billCount from smbms_bill where providerId = #{providerId}
+	</select>
+	<select id="getBillById" resultType="cn.smbms.pojo.Bill">
+		select b.*,p.proName as providerName
+		from smbms_bill b, smbms_provider p
+		where b.providerId = p.id and b.id=#{id}
+	</select>
+
+
+</mapper>
